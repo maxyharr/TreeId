@@ -4,23 +4,30 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MapScreen from './components/MapScreen';
-import OtherScreen from './components/OtherScreen';
+import CameraScreen from './components/CameraScreen';
+import ImageConfirmationScreen from './components/ImageConfirmationScreen';
+import { ImageProvider } from './contexts/ImageContext';
 
-const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const CameraStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Camera" component={CameraScreen} />
+    <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
+  </Stack.Navigator>
+);
 
 export default function App() {
   return (
-    // <View style={styles.container}>
-
-    //   <StatusBar style="auto" />
-    // </View>
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Map" component={MapScreen} />
-        <Tab.Screen name="Other" component={OtherScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <ImageProvider>
+      <NavigationContainer>
+        <Tab.Navigator>
+          <Tab.Screen name="Map" component={MapScreen} />
+          <Tab.Screen name="Other" component={CameraStack} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </ImageProvider>
   );
 }
 
