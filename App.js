@@ -11,21 +11,22 @@ import { ImageProvider } from './contexts/ImageContext';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const CameraStack = () => (
-  <Stack.Navigator>
-    <Stack.Screen name="Camera" component={CameraScreen} />
-    <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
-  </Stack.Navigator>
+
+const HomeStack = () => (
+  <Tab.Navigator>
+    <Tab.Screen name="Map" component={MapScreen} />
+    <Tab.Screen name="Camera" component={CameraScreen} />
+  </Tab.Navigator>
 );
 
 export default function App() {
   return (
     <ImageProvider>
       <NavigationContainer>
-        <Tab.Navigator>
-          <Tab.Screen name="Map" component={MapScreen} />
-          <Tab.Screen name="Other" component={CameraStack} />
-        </Tab.Navigator>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Home" component={HomeStack} />
+          <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
+        </Stack.Navigator>
       </NavigationContainer>
     </ImageProvider>
   );
