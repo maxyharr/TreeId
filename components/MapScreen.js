@@ -3,11 +3,14 @@ import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import ImageContext from '../contexts/ImageContext';
+import { useNavigation } from '@react-navigation/native';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
   const { images } = useContext(ImageContext);
   const [markers, setMarkers] = useState([]);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     getLocationAsync();
@@ -55,6 +58,9 @@ const MapScreen = () => {
               coordinate={marker.coordinate}
               title={marker.id}
               description={marker.id}
+              // on click, navigate to the TreeDetailsScreen with the marker id
+              // In the future, we'll navigate with the Tree ID instead
+              onPress={() => navigation.navigate('TreeDetails', { id: marker.id })}
             >
               <Image
                 source={{ uri: marker.imageUri }}
