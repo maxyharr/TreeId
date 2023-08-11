@@ -2,13 +2,13 @@ import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Image, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as MediaLibrary from 'expo-media-library';
-import ImageContext from '../contexts/ImageContext';
+import AppContext from '../contexts/AppContext';
 
 const ImageConfirmationScreen = ({ route }) => {
   const { photo, location } = route.params;
   const navigation = useNavigation();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
-  const { images, setImages } = useContext(ImageContext);
+  const { state, setState } = useContext(AppContext);
 
   useEffect(() => {
     (async () => {
@@ -32,7 +32,7 @@ const ImageConfirmationScreen = ({ route }) => {
         await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
       }
 
-      setImages([...images, { uri: photo.uri, location }]);
+      setState({...state, images: [...state.images, { uri: photo.uri, location }]});
       // Pop the ImageConfirmationScreen off the stack and then navigate to the MapScreen
       navigation.pop();
       navigation.navigate('Map');

@@ -7,7 +7,7 @@ import MapScreen from './components/MapScreen';
 import CameraScreen from './components/CameraScreen';
 import ImageConfirmationScreen from './components/ImageConfirmationScreen';
 import TreeDetailsScreen from './components/TreeDetailsScreen';
-import { ImageProvider } from './contexts/ImageContext';
+import { AppProvider } from './contexts/AppContext';
 
 
 const Tab = createBottomTabNavigator();
@@ -22,7 +22,7 @@ const HomeStack = () => (
 
 export default function App() {
   return (
-    <ImageProvider>
+    <AppProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Home" component={HomeStack} />
@@ -30,7 +30,7 @@ export default function App() {
           <Stack.Screen name="TreeDetails" component={TreeDetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    </ImageProvider>
+    </AppProvider>
   );
 }
 

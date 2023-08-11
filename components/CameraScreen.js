@@ -3,12 +3,12 @@ import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
-import ImageContext from '../contexts/ImageContext';
+import AppContext from '../contexts/AppContext';
 
 const CameraScreen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
-  const { images } = useContext(ImageContext);
+  const { state } = useContext(AppContext);
 
   const navigation = useNavigation();
 
@@ -56,7 +56,7 @@ const CameraScreen = () => {
       )}
 
       {/* Show location of each image as text */}
-      {images.map((image) => (
+      {state.images.map((image) => (
         <Text key={image.uri}>{JSON.stringify(image.location)}</Text>
       ))}
 

@@ -2,19 +2,19 @@ import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import ImageContext from '../contexts/ImageContext';
+import AppContext from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
-  const { images } = useContext(ImageContext);
+  const { state } = useContext(AppContext);
   const [markers, setMarkers] = useState([]);
 
   const navigation = useNavigation();
 
   useEffect(() => {
     getLocationAsync();
-    const newMarkers = images.map((image) => ({
+    const newMarkers = state.images.map((image) => ({
       id: image.uri,
       coordinate: {
         latitude: image.location.coords.latitude,
@@ -23,7 +23,7 @@ const MapScreen = () => {
       imageUri: image.uri,
     }));
     setMarkers(newMarkers);
-  }, [images]);
+  }, [state.images]);
 
   const getLocationAsync = async () => {
     try {

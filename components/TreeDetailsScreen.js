@@ -9,7 +9,7 @@ const TreeDetailsScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text>MarkerDetailsScreen</Text>
+      <Text>Tree Details</Text>
       <Image source={{ uri: id }} style={styles.image} />
       <Button title="Go back" onPress={() => navigation.goBack()} />
     </View>
