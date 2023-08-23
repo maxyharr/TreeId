@@ -1,5 +1,5 @@
 // import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View, TouchableOpacity } from 'react-native'; // importing TouchableOpacity from react-native-gesture-handler doesn't work with position absolute for some reason
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,16 +8,25 @@ import CameraScreen from './components/CameraScreen';
 import ImageConfirmationScreen from './components/ImageConfirmationScreen';
 import TreeDetailsScreen from './components/TreeDetailsScreen';
 import { AppProvider } from './contexts/AppContext';
-
+import { FontAwesome } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+const AddTreeButton = ({ onPress }) => (
+  <TouchableOpacity style={styles.addTreeButton} onPress={onPress}>
+    <FontAwesome name="plus" size={24} color="white" />
+  </TouchableOpacity>
+);
+
 const HomeStack = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="Map" component={MapScreen} />
-    <Tab.Screen name="Camera" component={CameraScreen} />
-  </Tab.Navigator>
+  <View style={{flex: 1}}>
+    <Tab.Navigator>
+      <Tab.Screen name="Map" component={MapScreen} />
+      <Tab.Screen name="Camera" component={CameraScreen} />
+    </Tab.Navigator>
+    <AddTreeButton onPress={() => console.log('Add tree')} />
+  </View>
 );
 
 export default function App() {
@@ -40,5 +49,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addTreeButton: {
+    position: 'absolute',
+    bottom: 70,
+    right: 30,
+    backgroundColor: 'blue',
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2, // Ensure the button is above the tabs
+  },
+  addTreeButtonText: {
+    fontSize: 40,
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
