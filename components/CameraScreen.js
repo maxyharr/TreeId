@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
@@ -34,24 +34,29 @@ const CameraScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: 'blue' }}>
       {hasCameraPermission === null ? (
         <Text>Requesting camera permission...</Text>
       ) : hasCameraPermission === false ? (
         <Text>No access to camera</Text>
       ) : (
-        <View style={styles.cameraContainer}>
-          <Camera
-            style={styles.camera}
-            ref={(ref) => setCamera(ref)}
-            type={Camera.Constants.Type.back}
-            autoFocus={Camera.Constants.AutoFocus.on}
-            flashMode={Camera.Constants.FlashMode.off}
-            whiteBalance={Camera.Constants.WhiteBalance.auto}
-          />
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <Text style={styles.captureButtonText}>Take Picture</Text>
-          </TouchableOpacity>
+        <View style={{ flex: 1, backgroundColor: 'green' }}>
+          <View style={{ flex: 1, backgroundColor: 'pink' }}>
+            <Camera
+              style={styles.camera}
+              ref={(ref) => setCamera(ref)}
+              type={Camera.Constants.Type.back}
+              autoFocus={Camera.Constants.AutoFocus.on}
+              flashMode={Camera.Constants.FlashMode.off}
+              whiteBalance={Camera.Constants.WhiteBalance.auto}
+            />
+            <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+              <Text style={styles.captureButtonText}>Take Picture</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flex: 1, backgroundColor: 'white' }}>
+
+          </View>
         </View>
       )}
 
@@ -67,13 +72,13 @@ const CameraScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   cameraContainer: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'black',
+    // flexDirection: 'row',
+    // backgroundColor: 'black',
   },
   camera: {
     flex: 1,

@@ -4,11 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MapScreen from './components/MapScreen';
-import CameraScreen from './components/CameraScreen';
 import ImageConfirmationScreen from './components/ImageConfirmationScreen';
 import TreeDetailsScreen from './components/TreeDetailsScreen';
 import { AppProvider } from './contexts/AppContext';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import AddTreeStack from './components/AddTreeStack';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -19,25 +20,37 @@ const AddTreeButton = ({ onPress }) => (
   </TouchableOpacity>
 );
 
-const HomeStack = () => (
-  <View style={{flex: 1}}>
-    <Tab.Navigator>
-      <Tab.Screen name="Map" component={MapScreen} />
-      <Tab.Screen name="Camera" component={CameraScreen} />
-    </Tab.Navigator>
-    <AddTreeButton onPress={() => console.log('Add tree')} />
-  </View>
-);
+const HomeStack = () => {
+  const navigation = useNavigation();
+
+  return (
+    <View style={{flex: 1}}>
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Map" component={MapScreen} />
+      </Stack.Navigator>
+      <AddTreeButton onPress={() => navigation.navigate('AddTree')} />
+    </View>
+  )
+}
+
+const AppStackNavigation = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Home" component={HomeStack} />
+
+      <Stack.Screen name="AddTree" component={AddTreeStack} />
+      <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
+
+      <Stack.Screen name="TreeDetails" component={TreeDetailsScreen} />
+    </Stack.Navigator>
+  )
+}
 
 export default function App() {
   return (
     <AppProvider>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Home" component={HomeStack} />
-          <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
-          <Stack.Screen name="TreeDetails" component={TreeDetailsScreen} />
-        </Stack.Navigator>
+        <AppStackNavigation />
       </NavigationContainer>
     </AppProvider>
   );
