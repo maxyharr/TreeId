@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, View, Image, Button } from 'react-native';
+import { StyleSheet, View, Image, Button, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as MediaLibrary from 'expo-media-library';
 import AppContext from '../contexts/AppContext';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 const ImageConfirmationScreen = ({ route }) => {
-  const { photo, location } = route.params;
   const navigation = useNavigation();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
   const { state, setState } = useContext(AppContext);
+
+  const { selectedMedia, selectedMediaLocation, selectedMediaChanges } = state;
+
+  const activeMedia = state.croppedMedia || state.selectedMedia;
 
   useEffect(() => {
     (async () => {
@@ -17,6 +21,28 @@ const ImageConfirmationScreen = ({ route }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      console.log('selectedMediaChanges', selectedMediaChanges)
+      console.log('selectedMedia', selectedMedia)
+      if (selectedMediaChanges) {
+        const { resize, crop } = selectedMediaChanges;
+        const { originX, originY, width, height } = crop;
+
+        // use imagemaniupulator to crop the image
+        const manipulatedImage = await ImageManipulator.manipulateAsync(
+          selectedMedia.uri,
+          [
+            // { resize: { width: 1000, height: 1000 } }
+            { crop: { originX, originY, width, height } }
+          ],
+          { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        setState({ ...state, croppedMedia: manipulatedImage });
+      }
+    })()
+  }, [selectedMedia, selectedMediaChanges]);
+
   const savePicture = async () => {
     try {
       if (!hasMediaLibraryPermission) {
@@ -24,7 +50,7 @@ const ImageConfirmationScreen = ({ route }) => {
         return;
       }
 
-      const asset = await MediaLibrary.createAssetAsync(photo.uri);
+      const asset = await MediaLibrary.createAssetAsync(activeMedia.uri);
       const album = await MediaLibrary.getAlbumAsync('Trees');
       if (album == null) {
         await MediaLibrary.createAlbumAsync('Trees', asset, false);
@@ -32,7 +58,7 @@ const ImageConfirmationScreen = ({ route }) => {
         await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
       }
 
-      setState({...state, images: [...state.images, { uri: photo.uri, location }]});
+      setState({...state, images: [...state.images, { uri: activeMedia.uri, location: selectedMediaLocation }]});
       // Pop the ImageConfirmationScreen off the stack and then navigate to the MapScreen
       navigation.pop();
       navigation.navigate('Map');
@@ -43,7 +69,7 @@ const ImageConfirmationScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: photo.uri }} style={styles.image} />
+      <Image source={{ uri: activeMedia.uri }} style={styles.image} />
       <Button title="Back to Camera" onPress={() => navigation.goBack()} />
       <Button title="Save" onPress={() => savePicture()} />
     </View>

@@ -26,7 +26,7 @@ const HomeStack = () => {
   return (
     <View style={{flex: 1}}>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Tab.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
       <AddTreeButton onPress={() => navigation.navigate('AddTree')} />
     </View>

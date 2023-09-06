@@ -1,143 +1,172 @@
 import React from 'react';
-import { Image, View, StyleSheet, PanResponder } from 'react-native';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler';
-import Animated, { Value, event, block, cond, set, eq, add, sub } from 'react-native-reanimated';
+import { Dimensions, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+// import Animated, { Value, event, block, cond, set, eq, add, sub } from 'react-native-reanimated';
+import Animated, {
+  runOnJS, useAnimatedStyle,
+  useSharedValue, withTiming,
+  withSpring,
+} from 'react-native-reanimated';
 
-const AdjustableImage = ({ source: { uri }, style }) => {
+const AdjustableImage = ({ media, onChange }) => {
+  const isPressed = useSharedValue(false);
 
-  const imageWidth = 100; // Set the initial image width
-  const imageHeight = 100; // Set the initial image height
+  const minimumScale = media.height > media.width ? media.height / media.width : media.width / media.height;
+  const initialScale = useSharedValue(minimumScale);
+  const scale = useSharedValue(minimumScale);
 
-  const scale = new Value(1);
-  const lastScale = new Value(1);
-  const offsetX = new Value(0);
-  const offsetY = new Value(0);
+  const initialFocal = useSharedValue({ x: 0, y: 0 });
+  const translate = useSharedValue({ x: 0, y: 0 });
 
-  const gestureState = new Value(State.UNDETERMINED);
+  const initialPan = useSharedValue({ x: 0, y: 0 });
 
-  const onGestureEvent = event([
-    {
-      nativeEvent: {
-        scale,
-        state: gestureState,
-      },
-    },
-  ]);
+  const emitChanges = () => {
+    const resize = {
+      width: 1 / scale.value,
+      height: 1 / scale.value
+    }
 
-  const onPinchGestureEvent = event([
-    {
-      nativeEvent: {
-        scale,
-        state: gestureState,
-      },
-    },
-  ]);
+    const crop = {
+      originX: -translate.value.x / scale.value,
+      originY: -translate.value.y / scale.value,
+      width: media.width / scale.value,
+      height: media.height / scale.value,
+    }
 
-  const onPinchHandlerStateChange = event([
-    {
-      nativeEvent: {
-        state: gestureState,
-      },
-    },
-  ]);
+    const changes = {
+      crop,
+      resize
+    }
 
-  const onZoomHandlerStateChange = event([
-    {
-      nativeEvent: {
-        state: gestureState,
-      },
-    },
-  ]);
+    onChange(changes);
+  }
 
-  const translateX = new Value(0);
-  const translateY = new Value(0);
+  const pinchGesture = //React.useMemo(() => {
+    Gesture.Pinch()
+      .onBegin((e) => {
+        isPressed.value = true;
+        initialScale.value = scale.value;
+        initialFocal.value = { x: e.focalX - translate.value.x, y: e.focalY - translate.value.y };
+      })
+      .onUpdate((e) => {
+        if (e.numberOfPointers != 2) return;
 
-  const gestureHandlers = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (event, gestureState) => {
-      // Handle panning here if needed
-    },
-    onPanResponderRelease: () => {
-      // Handle panning release if needed
-    },
+        const focalDelta = {
+          x: e.focalX - initialFocal.value.x,
+          y: e.focalY - initialFocal.value.y,
+        };
+
+        translate.value = {
+          x: focalDelta.x,
+          y: focalDelta.y,
+        };
+
+        scale.value = initialScale.value * e.scale;
+      })
+      .onFinalize(() => {
+        if (scale.value < minimumScale) {
+          scale.value = withSpring(minimumScale, { damping: 10 });
+        }
+
+        isPressed.value = false;
+        runOnJS(emitChanges)();
+      });
+  // }, [ isPressed, initialScale, scale, initialFocal, translate ])
+
+  const panGesture = //React.useMemo(() => {
+    Gesture.Pan()
+      .onBegin((e) => {
+        isPressed.value = true;
+        initialPan.value = { x: e.x - translate.value.x, y: e.y - translate.value.y };
+      })
+      .onTouchesMove((e) => {
+        const panDelta = {
+          x: e.allTouches[0].x - initialPan.value.x,
+          y: e.allTouches[0].y - initialPan.value.y,
+        };
+
+        translate.value = {
+          x: panDelta.x,
+          y: panDelta.y,
+        };
+      })
+      .onFinalize(() => {
+        isPressed.value = false;
+        runOnJS(emitChanges)();
+      });
+  // }, [ isPressed, initialPan, translate ])
+
+  const imageAnimatedStyles = useAnimatedStyle(() => {
+
+    return {
+      transform: [
+        {
+          scale: scale.value
+        },
+        {
+          translate: [ translate.value.x, translate.value.y ]
+        },
+      ],
+    };
   });
 
+  const gridAnimatedStyles = useAnimatedStyle(() => {
+    return {
+      opacity: isPressed.value ? withTiming(1, { duration: 200 }) : withTiming(0, { duration: 200 }),
+    };
+  });
+
+  const imageLayoutLoaded = (e) => {
+    const { width, height } = e.nativeEvent.layout;
+    console.log('Image Component Height: ', height);
+    console.log('media height: ', media.height);
+    console.log('media width: ', media.width);
+    // const imageAspectRatio = width / height;
+    // const deviceAspectRatio = deviceWidth / deviceHeight;
+
+    // const initialScale = imageAspectRatio > deviceAspectRatio
+    //   ? deviceWidth / width
+    //   : deviceHeight / height;
+
+    // scale.value = initialScale;
+  }
+
   return (
-    <View style={{ flex: 1, backgroundColor: 'green' }}>
-      <PinchGestureHandler
-        onGestureEvent={onPinchGestureEvent}
-        onHandlerStateChange={onPinchHandlerStateChange}
-      >
-        <Animated.View style={{ flex: 1, backgroundColor: 'blue' }}>
+    <View style={{ flex: 1 }}>
+      <GestureDetector gesture={Gesture.Exclusive(pinchGesture, panGesture)}>
+        <Animated.View style={{ flex: 1 }}>
           <Animated.Image
-            source={{ uri }}
+            onLayout={(e) => imageLayoutLoaded(e)}
+            source={{ uri: media.uri }}
             resizeMode={'contain'}
             style={[
-              { flex: 1, backgroundColor: 'red' },
-              // {
-              //   transform: [
-              //     { translateX },
-              //     { translateY },
-              //     {
-              //       scale: cond(
-              //       gestureState,
-              //       block([
-              //         cond(
-              //           eq(gestureState, State.ACTIVE),
-              //           [
-              //             set(
-              //               translateX,
-              //               cond(
-              //                 eq(lastScale, 1),
-              //                 add(translateX, sub(scale, 1)),
-              //                 add(translateX, sub(scale, lastScale)),
-              //               ),
-              //             ),
-              //             set(
-              //               translateY,
-              //               cond(
-              //                 eq(lastScale, 1),
-              //                 add(translateY, sub(scale, 1)),
-              //                 add(translateY, sub(scale, lastScale)),
-              //               ),
-              //             ),
-              //             set(lastScale, scale),
-              //           ],
-              //           [set(lastScale, 1)],
-              //         ),
-              //       ]),
-              //     )},
-              //   ],
-              // },
+              { flex: 1 },
+              imageAnimatedStyles
             ]}
           />
+          {/* Position absolute grid overlay */}
+          <Animated.View style={[
+            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+            gridAnimatedStyles,
+          ]}>
+            <Animated.View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+              <Animated.View style={{ width: '33.3%', height: '33.3%', borderWidth: 0.3, borderColor: 'lightgray' }} />
+            </Animated.View>
+          </Animated.View>
         </Animated.View>
-      </PinchGestureHandler>
+      </GestureDetector>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-  },
-  image: {
-    // width: imageWidth, // Set the initial image width
-    // height: imageHeight, // Set the initial image height
-  },
-});
-
-// const AdjustableImage = ({ style, source }) => {
-//   return (
-//     <View style={style}>
-//       <Image
-//         style={{ flex: 1, width: null, height: null }}
-//         source={source}
-//         resizeMode="contain"
-//       />
-//     </View>
-//   )
-// }
+}
 
 export default AdjustableImage;

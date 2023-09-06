@@ -8,8 +8,7 @@ import AppContext from '../contexts/AppContext';
 const CameraScreen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
-  const { state } = useContext(AppContext);
-
+  const { state, setState } = useContext(AppContext);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -27,9 +26,12 @@ const CameraScreen = () => {
 
   const takePicture = async () => {
     if (camera) {
-      const photo = await camera.takePictureAsync({ quality: 1 });
-      const location = await Location.getCurrentPositionAsync({});
-      navigation.navigate('ImageConfirmation', { photo, location });
+      const media = await camera.takePictureAsync({ quality: 1 });
+      const mediaLocation = await Location.getCurrentPositionAsync({});
+
+      setState({ ...state, selectedMedia: media, selectedMediaLocation: mediaLocation });
+
+      navigation.navigate('ImageConfirmation');
     }
   };
 
@@ -59,12 +61,6 @@ const CameraScreen = () => {
           </View>
         </View>
       )}
-
-      {/* Show location of each image as text */}
-      {state.images.map((image) => (
-        <Text key={image.uri}>{JSON.stringify(image.location)}</Text>
-      ))}
-
     </View>
   );
 };
