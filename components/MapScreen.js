@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import * as Location from 'expo-location';
-// import AppContext from '../contexts/AppContext';
 import { useFirebase } from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
+import utils from '../utils'
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
@@ -16,45 +15,21 @@ const MapScreen = () => {
 
   useEffect(() => {
     (async () => {
-      await getLocationAsync();
-      console.log('location', location);
+      const location = await utils.getLocationAsync();
+      setLocation(location);
       // TODO: just get ones near the user
       const posts = await index('posts');
       const newMarkers = posts.map((post) => ({
         id: post.id,
         coordinate: {
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: post.location?.latitude || location.latitude,
+          longitude: post.location?.longitude || location.longitude,
         },
         imageUri: post.mediaAssets[0].uri,
       }));
       setMarkers(newMarkers);
     })()
-    // const newMarkers = state.images.map((image) => ({
-    //   id: image.uri,
-    //   coordinate: {
-    //     latitude: image.location.coords.latitude,
-    //     longitude: image.location.coords.longitude,
-    //   },
-    //   imageUri: image.uri,
-    // }));
-    // setMarkers(newMarkers);
-  }, [/*state.images*/]);
-
-  const getLocationAsync = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
-        return;
-      }
-
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
-    } catch (error) {
-      console.log('Error getting location:', error);
-    }
-  };
+  }, []);
 
   return (
     <View style={styles.container}>

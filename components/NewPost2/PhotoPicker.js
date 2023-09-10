@@ -42,6 +42,11 @@ const PhotoPicker = ({ form, onChange }) => {
           style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 10 }}
           horizontal={true}
           keyExtractor={item => item.uri}
+          ListEmptyComponent={() => (
+            <View style={{ height: IMAGE_HEIGHT }}>
+              <Text style={{ color: 'gray' }}>No photos selected yet</Text>
+            </View>
+          )}
           renderItem={({ item, index }) => (
             <View style={{ marginRight: 10 }}>
               {item.type == 'image' && (

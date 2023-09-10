@@ -1,10 +1,12 @@
 import React from 'react';
 import PhotoPicker from './PhotoPicker';
 import PostTitle from './PostTitle';
-import { ScrollView } from 'react-native-gesture-handler';
+import LocationPicker from './LocationPicker';
 import { useNavigation } from '@react-navigation/native';
-import { Button } from 'react-native';
+import { Button, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { useFirebase } from '../../contexts/AppContext';
+import Notes from './Notes';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const NewPost2 = () => {
   const navigation = useNavigation();
@@ -34,11 +36,21 @@ const NewPost2 = () => {
   });
 
   return (
-    <ScrollView style={{ flex: 1, margin: 20 }}>
-      <PostTitle form={form} onChange={setForm} />
-      <PhotoPicker form={form} onChange={setForm} />
-      {/* TODO: Display map to select location */}
-    </ScrollView>
+    <KeyboardAvoidingView
+      style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
+      behavior={Platform.OS === 'ios' ? 'position' : null}
+      enabled
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView>
+        <View style={{ margin: 20 }}>
+          <PostTitle form={form} onChange={setForm} />
+          <PhotoPicker form={form} onChange={setForm} />
+          <LocationPicker form={form} onChange={setForm} />
+          <Notes form={form} onChange={setForm} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

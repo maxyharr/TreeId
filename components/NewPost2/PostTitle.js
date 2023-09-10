@@ -8,7 +8,6 @@ const PostTitle = ({ form, onChange }) => {
   return (
     <View>
       <TextInput
-        autoFocus={true}
         placeholder="Tree Name"
         style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, backgroundColor: 'white', padding: 10 }}
         value={form.title}

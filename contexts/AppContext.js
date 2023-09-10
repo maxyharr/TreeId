@@ -57,10 +57,9 @@ export const index = async (collectionName) => {
 };
 
 export const add = async (collectionName, data) => {
-  const collectionRef = collection(db, collectionName);
   try {
-    const docRef = await addDoc(collectionRef, data);
-    return get(collectionName, docRef.id);
+    const docRef = await addDoc(collection(db, collectionName), data);
+    return get(collectionName, docRef);
   } catch (error) {
     console.error('Error adding document: ', error);
   }
