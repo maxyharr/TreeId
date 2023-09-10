@@ -18,6 +18,7 @@
     "expo": "^49.0.9",
     "expo-camera": "~13.2.1",
     "expo-image-manipulator": "~11.3.0",
+    "expo-image-picker": "~14.3.2",
     "expo-location": "~15.1.1",
     "expo-media-library": "~15.2.3",
     "expo-status-bar": "~1.4.4",

@@ -9,7 +9,8 @@ import TreeDetailsScreen from './components/TreeDetailsScreen';
 import { AppProvider } from './contexts/AppContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import AddTreeStack from './components/AddTreeStack';
+import AddTreeStack from './components/AddTreeStack'; // Couldn't get cutom cropping etc to work
+import AddTreeStack2 from './components/AddTreeStack2';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -28,7 +29,8 @@ const HomeStack = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
-      <AddTreeButton onPress={() => navigation.navigate('AddTree')} />
+      {/* <AddTreeButton onPress={() => navigation.navigate('AddTree')} /> */}
+      <AddTreeButton onPress={() => navigation.navigate('AddTree2')} />
     </View>
   )
 }
@@ -39,6 +41,7 @@ const AppStackNavigation = () => {
       <Stack.Screen name="Home" component={HomeStack} />
 
       <Stack.Screen name="AddTree" component={AddTreeStack} />
+      <Stack.Screen name="AddTree2" component={AddTreeStack2} />
       <Stack.Screen name="ImageConfirmation" component={ImageConfirmationScreen} />
 
       <Stack.Screen name="TreeDetails" component={TreeDetailsScreen} />

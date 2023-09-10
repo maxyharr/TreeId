@@ -6,109 +6,121 @@ import Animated, {
   runOnJS, useAnimatedStyle,
   useSharedValue, withTiming,
   withSpring,
+  runOnUI,
 } from 'react-native-reanimated';
 
 const AdjustableImage = ({ media, onChange }) => {
+  // TODO: Handle case where AdjustableImage component doesn't take up the full screen width
+  const viewWidth = Dimensions.get('window').width;
+
+  const mediaIsPortrait = (media) => {
+    return media.height > media.width;
+  }
+
+  const scaledToScreenPixels = (media, mediaProperty, scaleTo) => {
+    // imagePixels will be something like 3000 (the width of the image)
+    // Want to return something like 300 (width of the view)
+    const mediaPixels = media[mediaProperty];
+    const useWidthToNormalize = mediaIsPortrait(media);
+    const scaleNumerator = scaleTo;
+    const scaleDemoninator = useWidthToNormalize ? media.width : media.height;
+    const scale = scaleNumerator / scaleDemoninator;
+
+    const scaled = mediaPixels * scale;
+
+    return Math.trunc(scaled);
+  }
+
+  const getInitialScale = (media) => {
+    return mediaIsPortrait(media) ? media.height / media.width : media.width / media.height;
+  }
+
+  const getInitialTranslateX = (media, scaledMediaWidth, viewWidth, scale) => {
+    return mediaIsPortrait(media) ? 0 : ((scaledMediaWidth - viewWidth) / 2) / scale
+  }
+
+  const getInitialTranslateY = (media, scaledMediaHeight, viewWidth, scale) => {
+    return mediaIsPortrait(media) ? ((scaledMediaHeight - viewWidth) / 2) / scale : 0;
+  }
+
+  const scale = useSharedValue(1);
+
+  const touchDownX = useSharedValue(0);
+  const touchDownY = useSharedValue(0);
+
+  const translateStartX = useSharedValue(0);
+  const translateStartY = useSharedValue(0);
+
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
   const isPressed = useSharedValue(false);
 
-  const minimumScale = media.height > media.width ? media.height / media.width : media.width / media.height;
-  const initialScale = useSharedValue(minimumScale);
-  const scale = useSharedValue(minimumScale);
+  const scaledMediaWidth = scaledToScreenPixels(media, 'width', viewWidth);
+  const scaledMediaHeight = scaledToScreenPixels(media, 'height', viewWidth);
+  const initialScale = getInitialScale(media);
+  const initialTranslateX = getInitialTranslateX(media, scaledMediaWidth, viewWidth, initialScale);
+  const initialTranslateY = getInitialTranslateY(media, scaledMediaHeight, viewWidth, initialScale);
 
-  const initialFocal = useSharedValue({ x: 0, y: 0 });
-  const translate = useSharedValue({ x: 0, y: 0 });
-
-  const initialPan = useSharedValue({ x: 0, y: 0 });
+  scale.value = initialScale;
+  translateX.value = initialTranslateX;
+  translateY.value = initialTranslateY;
 
   const emitChanges = () => {
-    const resize = {
-      width: 1 / scale.value,
-      height: 1 / scale.value
-    }
-
     const crop = {
-      originX: -translate.value.x / scale.value,
-      originY: -translate.value.y / scale.value,
-      width: media.width / scale.value,
-      height: media.height / scale.value,
+      originX: translateX.value - initialTranslateX,
+      originY: translateY.value - initialTranslateY,
+      width: media.width,
+      height: media.width,
     }
 
     const changes = {
       crop,
-      resize
     }
 
     onChange(changes);
   }
 
-  const pinchGesture = //React.useMemo(() => {
-    Gesture.Pinch()
-      .onBegin((e) => {
-        isPressed.value = true;
-        initialScale.value = scale.value;
-        initialFocal.value = { x: e.focalX - translate.value.x, y: e.focalY - translate.value.y };
-      })
-      .onUpdate((e) => {
-        if (e.numberOfPointers != 2) return;
+  const panGesture = React.useMemo(() => Gesture.Pan()
+    .onBegin((e) => {
+      isPressed.value = true;
+      const x = e.x;
+      const y = e.y;
 
-        const focalDelta = {
-          x: e.focalX - initialFocal.value.x,
-          y: e.focalY - initialFocal.value.y,
-        };
+      touchDownX.value = x;
+      touchDownY.value = y;
 
-        translate.value = {
-          x: focalDelta.x,
-          y: focalDelta.y,
-        };
+      translateStartX.value = translateX.value;
+      translateStartY.value = translateY.value;
+    })
+    .onTouchesMove((e) => {
+      const x = e.changedTouches[0].x;
+      const y = e.changedTouches[0].y;
 
-        scale.value = initialScale.value * e.scale;
-      })
-      .onFinalize(() => {
-        if (scale.value < minimumScale) {
-          scale.value = withSpring(minimumScale, { damping: 10 });
-        }
+      const deltaX = x - touchDownX.value;
+      const deltaY = y - touchDownY.value;
 
-        isPressed.value = false;
-        runOnJS(emitChanges)();
-      });
-  // }, [ isPressed, initialScale, scale, initialFocal, translate ])
+      let translateXTo = translateStartX.value + deltaX;
+      let translateYTo = translateStartY.value + deltaY;
 
-  const panGesture = //React.useMemo(() => {
-    Gesture.Pan()
-      .onBegin((e) => {
-        isPressed.value = true;
-        initialPan.value = { x: e.x - translate.value.x, y: e.y - translate.value.y };
-      })
-      .onTouchesMove((e) => {
-        const panDelta = {
-          x: e.allTouches[0].x - initialPan.value.x,
-          y: e.allTouches[0].y - initialPan.value.y,
-        };
+      if (translateXTo != 0) {
+        translateXTo = 0;
+      }
 
-        translate.value = {
-          x: panDelta.x,
-          y: panDelta.y,
-        };
-      })
-      .onFinalize(() => {
-        isPressed.value = false;
-        runOnJS(emitChanges)();
-      });
-  // }, [ isPressed, initialPan, translate ])
+      if (translateYTo > initialTranslateY) {
+        translateYTo = initialTranslateY;
+      } else if (translateYTo < -initialTranslateY) {
+        translateYTo = -initialTranslateY;
+      }
 
-  const imageAnimatedStyles = useAnimatedStyle(() => {
-
-    return {
-      transform: [
-        {
-          scale: scale.value
-        },
-        {
-          translate: [ translate.value.x, translate.value.y ]
-        },
-      ],
-    };
-  });
+      translateX.value = translateXTo;
+      translateY.value = translateYTo;
+    })
+    .onEnd((e) => {
+      isPressed.value = false;
+      runOnJS(emitChanges)();
+    })
+  , [isPressed, touchDownX, touchDownY, translateStartX, translateStartY, translateX, translateY, initialTranslateY, emitChanges]);
 
   const gridAnimatedStyles = useAnimatedStyle(() => {
     return {
@@ -116,32 +128,32 @@ const AdjustableImage = ({ media, onChange }) => {
     };
   });
 
-  const imageLayoutLoaded = (e) => {
-    const { width, height } = e.nativeEvent.layout;
-    console.log('Image Component Height: ', height);
-    console.log('media height: ', media.height);
-    console.log('media width: ', media.width);
-    // const imageAspectRatio = width / height;
-    // const deviceAspectRatio = deviceWidth / deviceHeight;
-
-    // const initialScale = imageAspectRatio > deviceAspectRatio
-    //   ? deviceWidth / width
-    //   : deviceHeight / height;
-
-    // scale.value = initialScale;
-  }
+  React.useEffect(() => {
+    emitChanges();
+  }, [])
 
   return (
     <View style={{ flex: 1 }}>
-      <GestureDetector gesture={Gesture.Exclusive(pinchGesture, panGesture)}>
+      <GestureDetector gesture={Gesture.Exclusive(/*pinchGesture,*/ panGesture)}>
         <Animated.View style={{ flex: 1 }}>
           <Animated.Image
-            onLayout={(e) => imageLayoutLoaded(e)}
             source={{ uri: media.uri }}
             resizeMode={'contain'}
             style={[
               { flex: 1 },
-              imageAnimatedStyles
+              {
+                transform: [
+                  {
+                    scale: scale
+                  },
+                  {
+                    translateX: translateX
+                  },
+                  {
+                    translateY: translateY
+                  }
+                ],
+              }
             ]}
           />
           {/* Position absolute grid overlay */}

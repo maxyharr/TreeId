@@ -23,8 +23,6 @@ const ImageConfirmationScreen = ({ route }) => {
 
   useEffect(() => {
     (async () => {
-      console.log('selectedMediaChanges', selectedMediaChanges)
-      console.log('selectedMedia', selectedMedia)
       if (selectedMediaChanges) {
         const { resize, crop } = selectedMediaChanges;
         const { originX, originY, width, height } = crop;
@@ -33,7 +31,6 @@ const ImageConfirmationScreen = ({ route }) => {
         const manipulatedImage = await ImageManipulator.manipulateAsync(
           selectedMedia.uri,
           [
-            // { resize: { width: 1000, height: 1000 } }
             { crop: { originX, originY, width, height } }
           ],
           { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
