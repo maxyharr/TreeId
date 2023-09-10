@@ -3,12 +3,13 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
-import AppContext from '../contexts/AppContext';
+import { useFirebase } from '../contexts/AppContext';
 
 const CameraScreen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
-  const { state, setState } = useContext(AppContext);
+  // const { state, setState } = useContext(AppContext);
+  const { db } = useFirebase();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const CameraScreen = () => {
       const media = await camera.takePictureAsync({ quality: 1 });
       const mediaLocation = await Location.getCurrentPositionAsync({});
 
-      setState({ ...state, selectedMedia: media, selectedMediaLocation: mediaLocation });
+      // setState({ ...state, selectedMedia: media, selectedMediaLocation: mediaLocation });
 
       navigation.navigate('ImageConfirmation');
     }

@@ -1,3 +1,5 @@
+import React from 'react';
+
 // import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View, TouchableOpacity } from 'react-native'; // importing TouchableOpacity from react-native-gesture-handler doesn't work with position absolute for some reason
 import { NavigationContainer } from '@react-navigation/native';
@@ -10,7 +12,7 @@ import { AppProvider } from './contexts/AppContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AddTreeStack from './components/AddTreeStack'; // Couldn't get cutom cropping etc to work
-import AddTreeStack2 from './components/AddTreeStack2';
+import AddTreeStack2 from './components/NewPost2/AddTreeStack2';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

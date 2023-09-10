@@ -2,28 +2,44 @@ import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import AppContext from '../contexts/AppContext';
+// import AppContext from '../contexts/AppContext';
+import { useFirebase } from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
-  const { state } = useContext(AppContext);
+  // const { state } = useContext(AppContext);
+  const { index } = useFirebase();
   const [markers, setMarkers] = useState([]);
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    getLocationAsync();
-    const newMarkers = state.images.map((image) => ({
-      id: image.uri,
-      coordinate: {
-        latitude: image.location.coords.latitude,
-        longitude: image.location.coords.longitude,
-      },
-      imageUri: image.uri,
-    }));
-    setMarkers(newMarkers);
-  }, [state.images]);
+    (async () => {
+      await getLocationAsync();
+      console.log('location', location);
+      // TODO: just get ones near the user
+      const posts = await index('posts');
+      const newMarkers = posts.map((post) => ({
+        id: post.id,
+        coordinate: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        imageUri: post.mediaAssets[0].uri,
+      }));
+      setMarkers(newMarkers);
+    })()
+    // const newMarkers = state.images.map((image) => ({
+    //   id: image.uri,
+    //   coordinate: {
+    //     latitude: image.location.coords.latitude,
+    //     longitude: image.location.coords.longitude,
+    //   },
+    //   imageUri: image.uri,
+    // }));
+    // setMarkers(newMarkers);
+  }, [/*state.images*/]);
 
   const getLocationAsync = async () => {
     try {

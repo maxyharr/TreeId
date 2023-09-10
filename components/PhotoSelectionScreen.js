@@ -4,13 +4,15 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Dimensions, FlatList, Image, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AdjustableImage from './AdjustableImage';
-import AppContext from '../contexts/AppContext';
+// import AppContext from '../contexts/AppContext';
+import { useFirebase } from '../contexts/AppContext';
 import ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 
 const PhotoSelectionScreen = () => {
   const navigation = useNavigation();
   const {state, setState} = useContext(AppContext);
+  const { db } = useFirebase();
 
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
   const [recentMedia, setRecentMedia] = useState([]);
@@ -51,9 +53,9 @@ const PhotoSelectionScreen = () => {
     <View style={{ flex: 1, backgroundColor: 'black' }}>
       <View style={{ height: deviceWidth }}>
         { /* Show most recent image in recents album */ }
-        {state.selectedMedia && (
+        {/* {state.selectedMedia && (
           <AdjustableImage media={state.selectedMedia} onChange={changes => setState({...state, selectedMediaChanges: changes})}/>
-        )}
+        )} */}
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', backgroundColor: 'black' }}>
@@ -74,12 +76,13 @@ const PhotoSelectionScreen = () => {
             onEndReachedThreshold={2}
             onEndReached={() => loadMoreMedia(recentMedia[recentMedia.length - 1].id)}
             renderItem={({ item: media }) => (
-              <TouchableOpacity key={media.id} onPress={() => setState({...state, selectedMedia: media})} activeOpacity={0.5}>
-                <Image
-                  source={{ uri: media.uri }}
-                  style={{ height: imageWidth, width: imageWidth }}
-                />
-              </TouchableOpacity>
+              <View></View>
+              // <TouchableOpacity key={media.id} onPress={() => setState({...state, selectedMedia: media})} activeOpacity={0.5}>
+              //   <Image
+              //     source={{ uri: media.uri }}
+              //     style={{ height: imageWidth, width: imageWidth }}
+              //   />
+              // </TouchableOpacity>
             )}>
           </FlatList>
         </View>

@@ -3,15 +3,15 @@ import { View, Text, Button, FlatList, Image, TouchableOpacity } from 'react-nat
 import * as ImagePicker from 'expo-image-picker';
 import { FontAwesome } from '@expo/vector-icons';
 
-const PhotoPicker = () => {
-  const [assets, setAssets] = React.useState([]);
+const PhotoPicker = ({ form, onChange }) => {
+  if (!form) return null;
 
   const IMAGE_WIDTH = 100;
   const IMAGE_HEIGHT = IMAGE_WIDTH;
 
   const pickAssets = async () => {
     // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       // mediaTypes: ImagePicker.MediaTypeOptions.All,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -20,13 +20,14 @@ const PhotoPicker = () => {
     });
 
     if (!result.canceled) {
-      setAssets([...assets, ...result.assets]);
+      const assets = result.assets;
+      onChange({ ...form, mediaAssets: assets });
     }
   };
 
   const deleteAsset = (asset) => {
-    const newAssets = assets.filter(a => a.uri !== asset.uri);
-    setAssets(newAssets);
+    const assets = form.mediaAssets.filter(a => a.uri != asset.uri);
+    onChange({ ...form, mediaAssets: assets });
   }
 
   return (
@@ -37,7 +38,7 @@ const PhotoPicker = () => {
       </View>
       <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
         <FlatList
-          data={[...assets]}
+          data={form.mediaAssets}
           style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 10 }}
           horizontal={true}
           keyExtractor={item => item.uri}

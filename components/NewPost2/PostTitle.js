@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, TextInput } from 'react-native';
+import { useFirebase } from '../../contexts/AppContext';
 
-const PostTitle = () => {
-  const [title, setTitle] = React.useState('');
+const PostTitle = ({ form, onChange }) => {
+  if (!form) return null;
 
   return (
     <View>
@@ -10,8 +11,8 @@ const PostTitle = () => {
         autoFocus={true}
         placeholder="Tree Name"
         style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10, backgroundColor: 'white', padding: 10 }}
-        value={title}
-        onChangeText={text => setTitle(text)}
+        value={form.title}
+        onChangeText={text => onChange({ ...form, title: text })}
       />
     </View>
   )
