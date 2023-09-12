@@ -19,18 +19,25 @@ const MapScreen = () => {
 
   useEffect(() => {
     (async () => {
+      // if (!mapViewRef.current) return;
       const location = await utils.getLocationAsync();
       setLocation(location);
-      await handleRegionChangeComplete({
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: initialLatitudeDelta,
-        longitudeDelta: initialLongitudeDelta,
-      });
+      // Get mapViewRef current latitudeDelta and longitudeDelta
+      // const { latitudeDelta, longitudeDelta } = mapViewRef.current.__lastRegion;
+      if (location.latitude && location.longitude) {
+        await handleRegionChangeComplete({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: initialLatitudeDelta,
+          longitudeDelta: initialLongitudeDelta,
+        });
+      }
     })()
   }, []);
 
-  const updateMarkers = debounce(async (region) => {
+  const handleRegionChangeComplete = debounce(async (region) => {
+    if (!region.latitude || !region.longitude) return;
+
     const result = await api.getPosts(region);
     if (!result.error) {
       const posts = result.data;
@@ -44,9 +51,25 @@ const MapScreen = () => {
       }));
       setMarkers(newMarkers);
     }
-  }, 1000)
+  }, 1000);
 
-  const handleRegionChangeComplete = React.useCallback((region) => updateMarkers(region), []);
+  // const handleRegionChangeComplete = async (region) => {
+  //   if (!region.latitude || !region.longitude) return;
+
+  //   const result = await api.getPosts(region);
+  //   if (!result.error) {
+  //     const posts = result.data;
+  //     const newMarkers = posts.map((post) => ({
+  //       id: post.id,
+  //       coordinate: {
+  //         latitude: post.location?.latitude || location.latitude,
+  //         longitude: post.location?.longitude || location.longitude,
+  //       },
+  //       imageUri: post.mediaAssets[0].uri,
+  //     }));
+  //     setMarkers(newMarkers);
+  //   }
+  // }
 
   return (
     <View style={[styles.container]}>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import utils from '../../utils';
+import * as geoFire from 'geofire-common';
 
 const LocationPicker = ({ form, onChange }) => {
   const deviceWidth = utils.deviceWidth();
@@ -19,6 +20,13 @@ const LocationPicker = ({ form, onChange }) => {
 
   if (!form) return null;
 
+  const handleLocationChange = (e) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    const geoHash = geoFire.geohashForLocation([latitude, longitude]);
+    console.log('geoHash:', geoHash)
+    onChange({ ...form, location: {...e.nativeEvent.coordinate, geoHash }});
+  }
+
   return (
     <View style={{ flex: 1, height: deviceWidth, width: '100%' }}>
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Location</Text>
@@ -26,7 +34,7 @@ const LocationPicker = ({ form, onChange }) => {
         // Touching a point on the map should move the marker to that point
         <MapView
           style={{ flex: 1 }}
-          onPress={(e) => onChange({ ...form, location: e.nativeEvent.coordinate })}
+          onPress={handleLocationChange}
           showsUserLocation
           initialRegion={{
             latitude: form.location.latitude,

@@ -19,6 +19,23 @@ const utils = {
   deviceWidth: () => {
     return Dimensions.get('window').width;
   },
+  deviceHeight: () => {
+    return Dimensions.get('window').height;
+  },
+  getRadiusInMeters: (latitudeDelta, longitudeDelta) => {
+    // If in portrait, use latitudeDelta, else use longitudeDelta
+    // Delta is degrees visible on screen
+    // 1 degress is ~69 miles
+    // 1 mile is ~1609 meters
+    // 1 degree is ~69 * 1609 meters
+    // 1 degree is ~111120 meters
+
+    const inPortrait = Dimensions.get('window').height > Dimensions.get('window').width;
+    const diameterInMeters = inPortrait ? latitudeDelta * 111120 : longitudeDelta * 111120;
+    const radiusInMeters = diameterInMeters / 2;
+
+    return radiusInMeters;
+  }
 }
 
 export default utils;
