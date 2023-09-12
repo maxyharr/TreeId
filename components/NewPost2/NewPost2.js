@@ -41,7 +41,7 @@ const NewPost2 = () => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
-      behavior={Platform.OS === 'ios' ? 'position' : null}
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
       enabled
       keyboardVerticalOffset={100}
     >

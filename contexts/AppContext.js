@@ -1,5 +1,6 @@
 import React from 'react';
 import api from '../api';
+import trefleApi from '../trefleApi';
 
 const AppContext = React.createContext();
 
@@ -9,7 +10,7 @@ export const useApi = () => {
 
 export const AppProvider = ({ children }) => {
   return (
-    <AppContext.Provider value={{ api }}>
+    <AppContext.Provider value={{ api, trefleApi }}>
       {children}
     </AppContext.Provider>
   );

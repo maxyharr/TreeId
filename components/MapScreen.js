@@ -5,6 +5,7 @@ import { useApi } from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
 import utils from '../utils'
 import { debounce } from 'lodash-es';
+import trefleApi from '../trefleApi';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
