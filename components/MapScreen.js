@@ -1,24 +1,38 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { useFirebase } from '../contexts/AppContext';
+import { useApi } from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
 import utils from '../utils'
+import { debounce } from 'lodash-es';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
-  // const { state } = useContext(AppContext);
-  const { index } = useFirebase();
+  const { api } = useApi();
   const [markers, setMarkers] = useState([]);
 
   const navigation = useNavigation();
+
+  const initialLongitudeDelta = 0.001;
+  const initialLatitudeDelta = 0.0025;
 
   useEffect(() => {
     (async () => {
       const location = await utils.getLocationAsync();
       setLocation(location);
-      // TODO: just get ones near the user
-      const posts = await index('posts');
+      await handleRegionChangeComplete({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: initialLatitudeDelta,
+        longitudeDelta: initialLongitudeDelta,
+      });
+    })()
+  }, []);
+
+  const updateMarkers = debounce(async (region) => {
+    const result = await api.getPosts(region);
+    if (!result.error) {
+      const posts = result.data;
       const newMarkers = posts.map((post) => ({
         id: post.id,
         coordinate: {
@@ -28,20 +42,25 @@ const MapScreen = () => {
         imageUri: post.mediaAssets[0].uri,
       }));
       setMarkers(newMarkers);
-    })()
-  }, []);
+    }
+  }, 1000)
+
+  const handleRegionChangeComplete = React.useCallback((region) => updateMarkers(region), []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       { location ? (
         <MapView
           style={styles.map}
           initialRegion={{
             latitude: location.latitude,
             longitude: location.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: initialLatitudeDelta,
+            longitudeDelta: initialLongitudeDelta,
           }}
+          showsUserLocation
+          onRegionChangeComplete={handleRegionChangeComplete}
+          onUserLocationChange={handleRegionChangeComplete}
         >
           {markers.map((marker) => (
             <Marker
@@ -55,7 +74,7 @@ const MapScreen = () => {
             >
               <Image
                 source={{ uri: marker.imageUri }}
-                style={{ width: 50, height: 50 }}
+                style={{ width: 35, height: 35, borderRadius: 25 }}
               />
             </Marker>
           ))}

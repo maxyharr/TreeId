@@ -20,13 +20,14 @@ const LocationPicker = ({ form, onChange }) => {
   if (!form) return null;
 
   return (
-    <View style={{ flex: 1, height: deviceWidth, width: deviceWidth }}>
+    <View style={{ flex: 1, height: deviceWidth, width: '100%' }}>
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Location</Text>
       { form.location && form.location.latitude && (
         // Touching a point on the map should move the marker to that point
         <MapView
           style={{ flex: 1 }}
           onPress={(e) => onChange({ ...form, location: e.nativeEvent.coordinate })}
+          showsUserLocation
           initialRegion={{
             latitude: form.location.latitude,
             longitude: form.location.longitude,

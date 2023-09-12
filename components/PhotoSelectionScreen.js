@@ -5,14 +5,14 @@ import { Dimensions, FlatList, Image, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import AdjustableImage from './AdjustableImage';
 // import AppContext from '../contexts/AppContext';
-import { useFirebase } from '../contexts/AppContext';
 import ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
+import { useApi } from '../contexts/AppContext';
 
 const PhotoSelectionScreen = () => {
   const navigation = useNavigation();
   const {state, setState} = useContext(AppContext);
-  const { db } = useFirebase();
+  // const { api } = useApi();
 
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(null);
   const [recentMedia, setRecentMedia] = useState([]);

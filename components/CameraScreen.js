@@ -3,13 +3,13 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Camera } from 'expo-camera';
-import { useFirebase } from '../contexts/AppContext';
+import { useApi } from '../contexts/AppContext';
 
 const CameraScreen = () => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [camera, setCamera] = useState(null);
   // const { state, setState } = useContext(AppContext);
-  const { db } = useFirebase();
+  // const { api } = useApi();
   const navigation = useNavigation();
 
   useEffect(() => {

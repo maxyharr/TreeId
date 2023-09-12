@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, TextInput } from 'react-native';
-import { useFirebase } from '../../contexts/AppContext';
 
 const PostTitle = ({ form, onChange }) => {
   if (!form) return null;
