@@ -6,6 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import utils from '../utils'
 import { debounce } from 'lodash-es';
 import trefleApi from '../trefleApi';
+import constants from '../constants';
+
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
@@ -13,9 +15,6 @@ const MapScreen = () => {
   const [markers, setMarkers] = useState([]);
 
   const navigation = useNavigation();
-
-  const initialLongitudeDelta = 0.001;
-  const initialLatitudeDelta = 0.0025;
 
   useEffect(() => {
     (async () => {
@@ -28,14 +27,14 @@ const MapScreen = () => {
         await handleRegionChangeComplete({
           latitude: location.latitude,
           longitude: location.longitude,
-          latitudeDelta: initialLatitudeDelta,
-          longitudeDelta: initialLongitudeDelta,
+          latitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
+          longitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
         });
       }
     })()
   }, []);
 
-  const handleRegionChangeComplete = debounce(async (region) => {
+  const handleRegionChangeComplete = async (region) => {
     if (!region.latitude || !region.longitude) return;
 
     const result = await api.getPosts(region);
@@ -51,7 +50,7 @@ const MapScreen = () => {
       }));
       setMarkers(newMarkers);
     }
-  }, 1000);
+  }
 
   // const handleRegionChangeComplete = async (region) => {
   //   if (!region.latitude || !region.longitude) return;
@@ -79,8 +78,8 @@ const MapScreen = () => {
           initialRegion={{
             latitude: location.latitude,
             longitude: location.longitude,
-            latitudeDelta: initialLatitudeDelta,
-            longitudeDelta: initialLongitudeDelta,
+            latitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
+            longitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
           }}
           showsUserLocation
           onRegionChangeComplete={handleRegionChangeComplete}

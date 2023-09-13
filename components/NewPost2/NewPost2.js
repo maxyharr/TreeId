@@ -7,7 +7,6 @@ import { Button, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { useApi } from '../../contexts/AppContext';
 import Notes from './Notes';
 import { ScrollView } from 'react-native-gesture-handler';
-import constants from '../../constants';
 
 const NewPost2 = () => {
   const navigation = useNavigation();
@@ -22,6 +21,7 @@ const NewPost2 = () => {
     if (form.title === '') return alert('Please enter a title');
     if (form.mediaAssets.length === 0) return alert('Please select at least one photo');
 
+    // Upload each of the mediaAssets to 
     await api.addPost(form);
     navigation.navigate('Home');
   }

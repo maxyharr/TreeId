@@ -14,15 +14,22 @@ const PostTitle = ({ form, onChange }) => {
 
   const [plants, setPlants] = React.useState([]);
   const [selectedPlant, setSelectedPlant] = React.useState({});
+  const [loadingPlants, setLoadingPlants] = React.useState(false);
 
-  const loadPlants = debounce(async (text) => {
+  const handleChangeText = async (text) => {
+    setLoadingPlants(true);
+    await loadPlants(text);
+    setLoadingPlants(false);
+  }
+
+  const loadPlants = async (text) => {
     if (text === '') return setPlants([]);
     console.log('searching...', text)
     const result = await trefleApi.searchPlants(text);
     if (!result.error) {
       setPlants(result.data.filter(p => !!p.common_name));
     }
-  }, 1000);
+  };
 
   const handlePlantSelected = (plant) => {
     setSelectedPlant(plant);
@@ -36,18 +43,23 @@ const PostTitle = ({ form, onChange }) => {
         data={plants}
         placeholder='Tree Name'
         defaultValue={JSON.stringify(selectedPlant) == '{}' ? '' : selectedPlant.common_name}
-        onChangeText={loadPlants}
+        onChangeText={handleChangeText}
         renderResultList={() => (
           <ScrollView
             style={{ backgroundColor: 'white', left: 0, right: 0, maxHeight: deviceHeight / 2, position: 'absolute', zIndex: 1, borderWidth: 1, borderColor: 'gray', borderTopWidth: 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
           >
-            {plants.map((plant) => (
+            {loadingPlants && <Text style={{ padding: 10 }}>Loading...</Text>}
+
+            {!loadingPlants && plants.map((plant) => (
               <TouchableOpacity
                 key={plant.slug}
                 onPress={() => handlePlantSelected(plant)}
               >
                 <View style={{ margin: 10, paddingBottom: 10, borderBottomColor: 'gray', borderBottomWidth: 1, flexDirection: 'row' }}>
-                  <Image source={{ uri: plant.image_url }} style={{ width: '50%', aspectRatio: 1, marginRight: 10 }} />
+                  <Image
+                    source={{ uri: plant.image_url }}
+                    style={{ width: '50%', aspectRatio: 1, marginRight: 10, backgroundColor: 'lightgray', borderRadius: 10 }}
+                  />
                   <View style={{ flex: 1, justifyContent: 'space-between' }}>
                     <View>
                       <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>

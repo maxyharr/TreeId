@@ -32,7 +32,7 @@ const utils = {
 
     const inPortrait = Dimensions.get('window').height > Dimensions.get('window').width;
     const diameterInMeters = inPortrait ? latitudeDelta * 111120 : longitudeDelta * 111120;
-    const radiusInMeters = diameterInMeters / 2;
+    const radiusInMeters = diameterInMeters / 3 * 2; // / 2 seemed to cut off a little too much
 
     return radiusInMeters;
   }

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import utils from '../../utils';
 import * as geoFire from 'geofire-common';
+import constants from '../../constants';
 
 const LocationPicker = ({ form, onChange }) => {
   const deviceWidth = utils.deviceWidth();
@@ -11,7 +12,7 @@ const LocationPicker = ({ form, onChange }) => {
     (async () => {
       try {
         const location = await utils.getLocationAsync();
-        onChange({ ...form, location });
+        handleLocationChange({ nativeEvent: { coordinate: location }});
       } catch (error) {
         console.log('Error getting location:', error);
       }
@@ -39,8 +40,8 @@ const LocationPicker = ({ form, onChange }) => {
           initialRegion={{
             latitude: form.location.latitude,
             longitude: form.location.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
+            longitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
           }}
         >
           <Marker

@@ -3,13 +3,17 @@ import {
   collection,
   addDoc,
   getDocs,
-  getDoc,
   query,
   orderBy,
   startAt,
   endAt,
-  where,
 } from 'firebase/firestore';
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
 import firebaseConfig from './firebaseConfig';
 import { initializeApp } from "firebase/app";
 import 'firebase/auth';
@@ -18,6 +22,33 @@ import * as geofire from 'geofire-common';
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
+
+const storeImages = async (mediaAssets) => {
+  const asset = mediaAssets[0];
+
+  const { uri, assetId } = asset;
+
+
+  const fileRef = ref(storage, `images/${assetId}`);
+
+  try {
+    const response = await fetch(uri);
+
+    const blob = await response.blob();
+
+    const uploadResult = await uploadBytesResumable(fileRef, blob);
+
+    const downloadUrl = await getDownloadURL(uploadResult.ref);
+
+    const newMediaAssets = [{ ...asset, downloadUrl }];
+
+    return { data: newMediaAssets, error: null };
+  } catch (error) {
+    console.error('Error storing images: ', error);
+    return { data: null, error };
+  }
+}
 
 const api = {
   getPosts: async ({latitude, longitude, latitudeDelta, longitudeDelta}) => {
@@ -63,6 +94,10 @@ const api = {
   },
   addPost: async (data) => {
     try {
+      const result = await storeImages(data.mediaAssets);
+      if (result.error) return {data: null, error: result.error};
+      const newMediaAssets = result.data;
+      data = { ...data, mediaAssets: newMediaAssets }
       const docRef = await addDoc(collection(db, 'posts'), data);
       const doc = {
         id: docRef.id,
