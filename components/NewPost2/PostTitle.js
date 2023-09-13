@@ -18,18 +18,19 @@ const PostTitle = ({ form, onChange }) => {
 
   const handleChangeText = async (text) => {
     setLoadingPlants(true);
-    await loadPlants(text);
+    await debounceLoadPlants(text);
     setLoadingPlants(false);
   }
 
-  const loadPlants = async (text) => {
-    if (text === '') return setPlants([]);
+  const debounceLoadPlants = React.useCallback(debounce(async text => {
     console.log('searching...', text)
+    if (text === '') return setPlants([]);
+
     const result = await trefleApi.searchPlants(text);
     if (!result.error) {
       setPlants(result.data.filter(p => !!p.common_name));
     }
-  };
+  }, 300), []);
 
   const handlePlantSelected = (plant) => {
     setSelectedPlant(plant);

@@ -7,6 +7,7 @@ import {
   orderBy,
   startAt,
   endAt,
+  updateDoc,
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -25,25 +26,35 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const storeImages = async (mediaAssets) => {
-  const asset = mediaAssets[0];
+  // TODO: store multiple images
+  const promises = []
 
-  const { uri, assetId } = asset;
+  for (const asset of mediaAssets) {
+    const { uri, assetId } = asset;
+    const fileRef = ref(storage, `images/${assetId}`);
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
 
-
-  const fileRef = ref(storage, `images/${assetId}`);
+      promises.push(uploadBytesResumable(fileRef, blob));
+    } catch (error) {
+      console.error('Error blobbing image: ', error);
+      return { data: null, error };
+    }
+  }
 
   try {
-    const response = await fetch(uri);
-
-    const blob = await response.blob();
-
-    const uploadResult = await uploadBytesResumable(fileRef, blob);
-
-    const downloadUrl = await getDownloadURL(uploadResult.ref);
-
-    const newMediaAssets = [{ ...asset, downloadUrl }];
+    const results = await Promise.all(promises);
+    const newMediaAssets = [];
+    for (const result of results) {
+      const assetId = result.ref.fullPath.split('images/')[1];
+      const asset = mediaAssets.find(a => a.assetId === assetId);
+      const downloadUrl = await getDownloadURL(result.ref);
+      newMediaAssets.push({ ...asset, downloadUrl });
+    }
 
     return { data: newMediaAssets, error: null };
+
   } catch (error) {
     console.error('Error storing images: ', error);
     return { data: null, error };
@@ -94,16 +105,21 @@ const api = {
   },
   addPost: async (data) => {
     try {
-      const result = await storeImages(data.mediaAssets);
-      if (result.error) return {data: null, error: result.error};
-      const newMediaAssets = result.data;
-      data = { ...data, mediaAssets: newMediaAssets }
       const docRef = await addDoc(collection(db, 'posts'), data);
       const doc = {
         id: docRef.id,
         collection: 'posts',
         ...data,
       }
+
+      storeImages(data.mediaAssets).then(result => {
+        if (result.error) return console.log('Error storing images: ', result.error);
+
+        const newMediaAssets = result.data;
+        data = { ...data, mediaAssets: newMediaAssets }
+        updateDoc(docRef, data);
+      });
+
       return {data: doc, error: null};
     } catch (error) {
       console.error('Error adding post: ', error);

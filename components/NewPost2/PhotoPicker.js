@@ -20,8 +20,9 @@ const PhotoPicker = ({ form, onChange }) => {
     });
 
     if (!result.canceled) {
+      // Add assets to current assets
       const assets = result.assets;
-      onChange({ ...form, mediaAssets: assets });
+      onChange({ ...form, mediaAssets: [...form.mediaAssets, ...assets] });
     }
   };
 
