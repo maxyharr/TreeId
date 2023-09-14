@@ -1,28 +1,29 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { useApi } from '../contexts/AppContext';
 import { useNavigation } from '@react-navigation/native';
 import utils from '../utils'
 import { debounce } from 'lodash-es';
-import trefleApi from '../trefleApi';
 import constants from '../constants';
-
+import AddTreeButton from './AddTreeButton';
+import api from '../api';
 
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
-  const { api } = useApi();
   const [markers, setMarkers] = useState([]);
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    (async () => {
-      // if (!mapViewRef.current) return;
+    navigation.setOptions({
+      headerShown: false
+    });
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
       const location = await utils.getLocationAsync();
       setLocation(location);
-      // Get mapViewRef current latitudeDelta and longitudeDelta
-      // const { latitudeDelta, longitudeDelta } = mapViewRef.current.__lastRegion;
       if (location.latitude && location.longitude) {
         await handleRegionChangeComplete({
           latitude: location.latitude,
@@ -31,8 +32,14 @@ const MapScreen = () => {
           longitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
         });
       }
-    })()
-  }, []);
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const debounceHandleRegionChangeComplete = React.useCallback(async region =>
+    debounce(handleRegionChangeComplete, 300, { leading: true })(region),
+    []
+  );
 
   const handleRegionChangeComplete = async (region) => {
     if (!region.latitude || !region.longitude) return;
@@ -40,35 +47,21 @@ const MapScreen = () => {
     const result = await api.getPosts(region);
     if (!result.error) {
       const posts = result.data;
-      const newMarkers = posts.map((post) => ({
-        id: post.id,
-        coordinate: {
-          latitude: post.location?.latitude || location.latitude,
-          longitude: post.location?.longitude || location.longitude,
-        },
-        imageUri: post.mediaAssets[0].uri,
-      }));
+      const newMarkers = posts.map((post) => {
+        const { uri, downloadUrl } = post.mediaAssets[0];
+        return {
+          id: post.id,
+          postId: post.id,
+          coordinate: {
+            latitude: post.location?.latitude || location.latitude,
+            longitude: post.location?.longitude || location.longitude,
+          },
+          uri: downloadUrl || uri,
+        }
+      });
       setMarkers(newMarkers);
     }
   }
-
-  // const handleRegionChangeComplete = async (region) => {
-  //   if (!region.latitude || !region.longitude) return;
-
-  //   const result = await api.getPosts(region);
-  //   if (!result.error) {
-  //     const posts = result.data;
-  //     const newMarkers = posts.map((post) => ({
-  //       id: post.id,
-  //       coordinate: {
-  //         latitude: post.location?.latitude || location.latitude,
-  //         longitude: post.location?.longitude || location.longitude,
-  //       },
-  //       imageUri: post.mediaAssets[0].uri,
-  //     }));
-  //     setMarkers(newMarkers);
-  //   }
-  // }
 
   return (
     <View style={[styles.container]}>
@@ -82,22 +75,20 @@ const MapScreen = () => {
             longitudeDelta: constants.INITIAL_LAT_LONG_DELTA,
           }}
           showsUserLocation
-          onRegionChangeComplete={handleRegionChangeComplete}
-          onUserLocationChange={handleRegionChangeComplete}
+          onRegionChangeComplete={debounceHandleRegionChangeComplete}
+          onUserLocationChange={debounceHandleRegionChangeComplete}
         >
           {markers.map((marker) => (
             <Marker
               key={marker.id}
               coordinate={marker.coordinate}
-              title={marker.id}
-              description={marker.id}
               // on click, navigate to the TreeDetailsScreen with the marker id
               // In the future, we'll navigate with the Tree ID instead
-              onPress={() => navigation.navigate('TreeDetails', { id: marker.id })}
+              onPress={() => navigation.navigate('Tree Details', { postId: marker.postId })}
             >
               <Image
-                source={{ uri: marker.imageUri }}
-                style={{ width: 35, height: 35, borderRadius: 25 }}
+                source={{ uri: marker.uri }}
+                style={{ width: 50, height: 50, borderRadius: 50 }}
               />
             </Marker>
           ))}
@@ -108,6 +99,9 @@ const MapScreen = () => {
         </View>
        )
     }
+      <View style={{ position: 'absolute', bottom: 30, right: 30, zIndex: 2 }}>
+        <AddTreeButton onPress={() => navigation.navigate('UpsertPost')} />
+      </View>
     </View>
   );
 };

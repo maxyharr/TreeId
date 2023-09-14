@@ -6,14 +6,14 @@ const utils = {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+        console.error('Permission to access location was denied');
         return;
       }
 
       const currentLocation = await Location.getCurrentPositionAsync({});
       return currentLocation.coords;
     } catch (error) {
-      console.log('Error getting location:', error);
+      console.error('Error getting location:', error);
     }
   },
   deviceWidth: () => {

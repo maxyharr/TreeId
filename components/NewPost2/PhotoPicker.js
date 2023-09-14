@@ -21,8 +21,8 @@ const PhotoPicker = ({ form, onChange }) => {
 
     if (!result.canceled) {
       // Add assets to current assets
-      const assets = result.assets;
-      onChange({ ...form, mediaAssets: [...form.mediaAssets, ...assets] });
+      const assets = [...form.mediaAssets, ...result.assets];
+      onChange({ ...form, mediaAssets: assets });
     }
   };
 
@@ -34,18 +34,21 @@ const PhotoPicker = ({ form, onChange }) => {
   return (
     <View style={{flex: 1}}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Photos</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginBottom: 10 }}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Photos</Text>
+          <Text style={{ fontWeight: 'normal', fontSize: 14 }}> (Required)</Text>
+        </View>
         <Button title="Add" onPress={pickAssets}/>
       </View>
       <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
         <FlatList
           data={form.mediaAssets}
-          style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 10 }}
+          style={{ flex: 1, paddingTop: 10, paddingBottom: 10, paddingRight: 10 }}
           horizontal={true}
-          keyExtractor={item => item.uri}
+          keyExtractor={(item, index) => index.toString()}
           ListEmptyComponent={() => (
             <View style={{ height: IMAGE_HEIGHT }}>
-              <Text style={{ color: 'gray' }}>No photos selected yet</Text>
+              <Text style={{ color: 'gray' }}>No photos selected, at least one needed</Text>
             </View>
           )}
           renderItem={({ item, index }) => (
@@ -57,6 +60,7 @@ const PhotoPicker = ({ form, onChange }) => {
                     height: IMAGE_HEIGHT,
                     borderRadius: 10,
                     borderWidth: 1,
+                    backgroundColor: 'black'
                   }}
                   source={{ uri: item.uri }}
                 />
@@ -65,7 +69,7 @@ const PhotoPicker = ({ form, onChange }) => {
                 <Video style={{ width: IMAGE_WIDTH, height: IMAGE_HEIGHT, borderRadius: 10, borderWidth: 1 }} source={{ uri: item.uri }} />
               )}
               <TouchableOpacity style={{ position: 'absolute', right: -6, top: -6 }} onPress={() => deleteAsset(item)}>
-                <View style={{backgroundColor: 'lightgray', borderWidth: 3, borderColor: 'lightgray', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, borderRadius: '50%'}}>
+                <View style={{backgroundColor: 'lightgray', borderWidth: 3, borderColor: 'lightgray', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, borderRadius: 50}}>
                   <FontAwesome name="times" size={15} style={{ color: 'gray' }}/>
                 </View>
               </TouchableOpacity>

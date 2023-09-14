@@ -4,27 +4,33 @@ import MapView, { Marker } from 'react-native-maps';
 import utils from '../../utils';
 import * as geoFire from 'geofire-common';
 import constants from '../../constants';
+import { useNavigation } from '@react-navigation/native';
 
 const LocationPicker = ({ form, onChange }) => {
   const deviceWidth = utils.deviceWidth();
+  const navigation = useNavigation();
 
   React.useEffect(() => {
-    (async () => {
+    const unsubscribe = navigation.addListener('focus', async () => {
       try {
-        const location = await utils.getLocationAsync();
-        handleLocationChange({ nativeEvent: { coordinate: location }});
+        const userLocation = await utils.getLocationAsync();
+        const formLocation = form?.location;
+        handleLocationChange({ nativeEvent: { coordinate: {
+          latitude: formLocation?.latitude || userLocation.latitude,
+          longitude: formLocation?.longitude || userLocation.longitude,
+         }}});
       } catch (error) {
-        console.log('Error getting location:', error);
+        console.error('Error getting location:', error);
       }
-    })();
-  }, []);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   if (!form) return null;
 
   const handleLocationChange = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     const geoHash = geoFire.geohashForLocation([latitude, longitude]);
-    console.log('geoHash:', geoHash)
     onChange({ ...form, location: {...e.nativeEvent.coordinate, geoHash }});
   }
 
