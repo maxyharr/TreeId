@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TreeId",
-    "slug": "TreeId",
+    "slug": "treeid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,7 +25,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -38,6 +42,12 @@
           "cameraPermission": "The app accesses your camera to let you share photos with your community."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "db99aaa4-6c0d-4bf3-89d1-12bbb28524e9"
+      }
+    },
+    "owner": "mharris7190"
   }
 }
