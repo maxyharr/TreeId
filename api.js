@@ -11,6 +11,7 @@ import {
   getDoc,
   doc,
   deleteDoc,
+  where,
 } from 'firebase/firestore';
 import {
   getStorage,
@@ -136,6 +137,23 @@ const api = {
       return { data: matchingDocs, error: null }
     } catch (error) {
       console.error('Error getting posts: ', error);
+      return { data: null, error };
+    }
+  },
+  getCurrentUsersPosts: async () => {
+    try {
+      const q = query(collection(db, 'posts'), where('userId', '==', auth.currentUser.uid));
+      const snapshots = await getDocs(q);
+      const posts = snapshots.docs.map(doc => {
+        return {
+          id: doc.id,
+          collection: 'posts',
+          ...doc.data()
+        }
+      });
+      return { data: posts, error: null };
+    } catch (error) {
+      console.error('Error getting current user\'s posts: ', error);
       return { data: null, error };
     }
   },

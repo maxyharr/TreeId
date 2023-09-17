@@ -6,10 +6,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MapScreen from './components/MapScreen';
 import TreeDetailsScreen from './components/TreeDetailsScreen';
-import { AppProvider } from './contexts/AppContext';
 import api from './api';
 import NewPost2 from './components/NewPost2/NewPost2';
 import { FontAwesome } from '@expo/vector-icons';
+import MyTreesScreen from './components/Account/MyTreesScreen/';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -26,6 +26,17 @@ const HomeStack = () => {
   )
 }
 
+const MyTreesStack = () => {
+  return (
+    <View style={{flex: 1}}>
+      <Stack.Navigator>
+        <Stack.Screen name="Listing Trees" component={MyTreesScreen} screenOptions={{ headerShown: false }} />
+        <Stack.Screen name="Tree Details" component={TreeDetailsScreen} />
+      </Stack.Navigator>
+    </View>
+  )
+}
+
 
 const AppTabNavigation = () => (
   <Tab.Navigator screenOptions={({ route }) => ({
@@ -34,12 +45,16 @@ const AppTabNavigation = () => (
       if (route.name === 'Home') {
         return <FontAwesome name="map-marker" size={size} color={color} />
       }
+
+      if (route.name === 'My Trees') {
+        return <FontAwesome name="tree" size={size} color={color} />
+      }
     },
     tabBarActiveTintColor: 'blue',
     tabBarInactiveTintColor: 'gray',
   })}>
     <Tab.Screen name="Home" component={HomeStack} />
-    {/* <Tab.Screen name="My Trees" component={MyTreesScreen} /> */}
+    <Tab.Screen name="My Trees" component={MyTreesStack} />
   </Tab.Navigator>
 )
 
