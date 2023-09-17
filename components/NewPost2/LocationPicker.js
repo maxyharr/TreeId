@@ -12,15 +12,18 @@ const LocationPicker = ({ form, onChange }) => {
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      try {
-        const userLocation = await utils.getLocationAsync();
-        const formLocation = form?.location;
-        handleLocationChange({ nativeEvent: { coordinate: {
-          latitude: formLocation?.latitude || userLocation.latitude,
-          longitude: formLocation?.longitude || userLocation.longitude,
-         }}});
-      } catch (error) {
-        console.error('Error getting location:', error);
+      // We only want to use the user's location for new posts, not editing posts
+      if (!form?.id) {
+        try {
+          const userLocation = await utils.getLocationAsync();
+          const formLocation = form?.location;
+          handleLocationChange({ nativeEvent: { coordinate: {
+            latitude: formLocation?.latitude || userLocation.latitude,
+            longitude: formLocation?.longitude || userLocation.longitude,
+           }}});
+        } catch (error) {
+          console.error('Error getting location:', error);
+        }
       }
     });
     return unsubscribe;
@@ -31,7 +34,8 @@ const LocationPicker = ({ form, onChange }) => {
   const handleLocationChange = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     const geoHash = geoFire.geohashForLocation([latitude, longitude]);
-    onChange({ ...form, location: {...e.nativeEvent.coordinate, geoHash }});
+    console.log('LocationPicker#handleLocationChange', latitude, longitude, geoHash);
+    onChange({ ...form, location: {latitude, longitude, geoHash }});
   }
 
   return (
@@ -53,7 +57,7 @@ const LocationPicker = ({ form, onChange }) => {
           <Marker
             draggable
             coordinate={{ latitude: form.location.latitude, longitude: form.location.longitude }}
-            onDragEnd={(e) => onChange({ ...form, location: e.nativeEvent.coordinate })}
+            onDragEnd={(e) => handleLocationChange(e)}
           />
         </MapView>
       )}

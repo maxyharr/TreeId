@@ -18,7 +18,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "TreeId uses your location to help you identify trees in your area."
-      }
+      },
+      "bundleIdentifier": "com.mharris7190.treeid"
     },
     "android": {
       "adaptiveIcon": {
