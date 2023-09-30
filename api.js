@@ -99,6 +99,9 @@ const api = {
       return { data: null, error };
     }
   },
+  getCurrentUserId: () => {
+    return auth.currentUser.uid;
+  },
   getPosts: async ({latitude, longitude, latitudeDelta, longitudeDelta}) => {
     const center = [latitude, longitude];
     const radiusInM = utils.getRadiusInMeters(latitudeDelta, longitudeDelta);

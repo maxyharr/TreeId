@@ -8,8 +8,27 @@ import AssetCarousel from './AssetCarousel';
 const TreeDetailsScreen = ({ route }) => {
   const navigation = useNavigation();
   const [post, setPost] = React.useState(null);
+  const [postBelongsToCurrentUser, setPostBelongsToCurrentUser] = React.useState(false);
 
   const { postId } = route.params;
+
+  React.useEffect(() => {
+    if (!post) return;
+
+    if (post.userId === api.getCurrentUserId()) {
+      setPostBelongsToCurrentUser(true);
+      navigation.setOptions({
+        headerRight: () => (
+          <Button onPress={() => navigation.navigate('UpsertPost', { postId: post.id })} title="Edit" />
+        )
+      })
+    } else {
+      setPostBelongsToCurrentUser(false);
+      navigation.setOptions({
+        headerRight: () => null
+      })
+    }
+  }, [post]);
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -18,11 +37,6 @@ const TreeDetailsScreen = ({ route }) => {
         if (!result.error) {
           const post = result.data
           setPost(post)
-          navigation.setOptions({
-            headerRight: () => (
-              <Button onPress={() => navigation.navigate('UpsertPost', { postId: post.id })} title="Edit" />
-            )
-          })
         }
       })()
     });
@@ -50,7 +64,7 @@ const TreeDetailsScreen = ({ route }) => {
         <Text style={{ margin: 10 }}>{post ? (post.notes || 'No notes') : 'Loading...'}</Text>
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 30 }}>
-        <Button title="Delete" onPress={() => deletePost()} color={'red'} />
+        { postBelongsToCurrentUser && <Button title="Delete" onPress={() => deletePost()} color={'red'} /> }
       </View>
     </ScrollView>
   )

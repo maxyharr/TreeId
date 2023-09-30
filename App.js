@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MapScreen from './components/MapScreen';
 import TreeDetailsScreen from './components/TreeDetailsScreen';
 import api from './api';
-import NewPost2 from './components/NewPost2/NewPost2';
+import UpsertPost from './components/UpsertPost/UpsertPost';
 import { FontAwesome } from '@expo/vector-icons';
 import MyTreesScreen from './components/Account/MyTreesScreen/';
 
@@ -18,9 +18,7 @@ const HomeStack = () => {
   return (
     <View style={{flex: 1}}>
       <Stack.Navigator>
-        <Stack.Screen name="Map" component={MapScreen} screenOptions={{ headerShown: false }} />
-        <Stack.Screen name="UpsertPost" component={NewPost2} />
-        <Stack.Screen name="Tree Details" component={TreeDetailsScreen} />
+        <Stack.Screen name="MapScreen" component={MapScreen} screenOptions={{ headerShown: false }} />
       </Stack.Navigator>
     </View>
   )
@@ -31,7 +29,6 @@ const MyTreesStack = () => {
     <View style={{flex: 1}}>
       <Stack.Navigator>
         <Stack.Screen name="Listing Trees" component={MyTreesScreen} screenOptions={{ headerShown: false }} />
-        <Stack.Screen name="Tree Details" component={TreeDetailsScreen} />
       </Stack.Navigator>
     </View>
   )
@@ -42,7 +39,7 @@ const AppTabNavigation = () => (
   <Tab.Navigator screenOptions={({ route }) => ({
     headerShown: false,
     tabBarIcon: ({ focused, color, size }) => {
-      if (route.name === 'Home') {
+      if (route.name === 'Map') {
         return <FontAwesome name="map-marker" size={size} color={color} />
       }
 
@@ -53,7 +50,7 @@ const AppTabNavigation = () => (
     tabBarActiveTintColor: 'blue',
     tabBarInactiveTintColor: 'gray',
   })}>
-    <Tab.Screen name="Home" component={HomeStack} />
+    <Tab.Screen name="Map" component={HomeStack} />
     <Tab.Screen name="My Trees" component={MyTreesStack} />
   </Tab.Navigator>
 )
@@ -67,7 +64,11 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <AppTabNavigation />
+      <Stack.Navigator>
+        <Stack.Screen name="Tabs" component={AppTabNavigation} options={{ headerShown: false }} />
+        <Stack.Screen name="UpsertPost" component={UpsertPost} options={{ headerBackTitle: 'Back' }}/>
+        <Stack.Screen name="Tree Details" component={TreeDetailsScreen} options={{ headerBackTitle: 'Back' }} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
