@@ -66,16 +66,16 @@ const DataSearch = ({ form, onChange }) => {
         )}
 
       </View>
-      <View>
-        { form.treflePlant && (
+      { form.treflePlant && (
+        <View>
           <TrefleDetails treflePlant={form.treflePlant} button={() => (
             <TouchableOpacity onPress={() => onChange({ ...form, treflePlant: null })}>
               <FontAwesome name="times" size={20} style={{ color: 'gray' }}/>
             </TouchableOpacity>
           )} />
-        )}
-      </View>
-      { !loadingPlants && !form.treflePlant && (
+        </View>
+      )}
+      { !loadingPlants && !form.treflePlant && plants.length > 0 && (
         <View style={{ flex: 1 }}>
           <ScrollView
             style={{ backgroundColor: 'white', maxHeight: deviceHeight / 2, zIndex: 1, borderWidth: 1, borderColor: 'gray', borderRadius: 10 }}
