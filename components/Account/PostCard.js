@@ -18,9 +18,9 @@ const PostCard = ({ post, onPress }) => {
   return (
     <TouchableOpacity style={{ flex: 1 }} onPress={onPress} activeOpacity={1}>
       <View style={{ flex: 1, margin: CARD_MARGIN, padding: CARD_PADDING, backgroundColor: 'white', borderRadius: 5 }}>
-
-        <View style={{ marginBottom: ITEM_MARGIN_BOTTOM }}>
+        <View style={{ marginBottom: ITEM_MARGIN_BOTTOM, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={{ fontSize: TITLE_FONT_SIZE, fontWeight: 'bold' }}>{post.title}</Text>
+          <Text style={{ fontSize: FONT_SIZE }}>{utils.formatTimestampAgo(post.createdAt)}</Text>
         </View>
         <View style={{ marginBottom: ITEM_MARGIN_BOTTOM }}>
           <Text style={{ fontSize: FONT_SIZE }}>{post.treflePlant.family}</Text>

@@ -33,6 +33,8 @@ import * as geofire from 'geofire-common';
 // import 'react-native-get-random-values' // polyfill for uuid (crypto.getRandomValues)
 // import { v4 as uuid } from 'uuid';
 
+const { timestamp } = utils;
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -162,7 +164,7 @@ const api = {
   },
   addPost: async (data) => {
     try {
-      const docRef = await addDoc(collection(db, 'posts'), { ...data, userId: auth.currentUser.uid });
+      const docRef = await addDoc(collection(db, 'posts'), timestamp({ ...data, userId: auth.currentUser.uid }));
       const post = {
         id: docRef.id,
         collection: 'posts',
@@ -186,7 +188,7 @@ const api = {
   updatePost: async (postId, data) => {
     try {
       const docRef = doc(db, 'posts', postId);
-      await updateDoc(docRef, { ...data, userId: auth.currentUser.uid });
+      await updateDoc(docRef, timestamp({ ...data, userId: auth.currentUser.uid }));
       const post = {
         id: docRef.id,
         collection: 'posts',
