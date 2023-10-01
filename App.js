@@ -28,7 +28,7 @@ const MyTreesStack = () => {
   return (
     <View style={{flex: 1}}>
       <Stack.Navigator>
-        <Stack.Screen name="Listing Trees" component={MyTreesScreen} screenOptions={{ headerShown: false }} />
+        <Stack.Screen name="Trees" component={MyTreesScreen} screenOptions={{ headerShown: false }} />
       </Stack.Navigator>
     </View>
   )
@@ -43,15 +43,15 @@ const AppTabNavigation = () => (
         return <FontAwesome name="map-marker" size={size} color={color} />
       }
 
-      if (route.name === 'My Trees') {
-        return <FontAwesome name="tree" size={size} color={color} />
+      if (route.name === 'Profile') {
+        return <FontAwesome name="user" size={size} color={color} />
       }
     },
     tabBarActiveTintColor: 'blue',
     tabBarInactiveTintColor: 'gray',
   })}>
     <Tab.Screen name="Map" component={HomeStack} />
-    <Tab.Screen name="My Trees" component={MyTreesStack} />
+    <Tab.Screen name="Profile" component={MyTreesStack} />
   </Tab.Navigator>
 )
 

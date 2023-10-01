@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import PhotoPicker from './PhotoPicker';
-import PostTitle from './PostTitle';
+import DataSearch from './DataSearch';
 import LocationPicker from './LocationPicker';
 import { useNavigation } from '@react-navigation/native';
 import { Button, KeyboardAvoidingView, Platform, View, Text } from 'react-native';
 import Notes from './Notes';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import api from '../../api';
 
@@ -80,23 +80,27 @@ const UpsertPost = ({ route }) => {
     >
       {postId && postLoading ? <Text>Loading...</Text> : (
         <View style={{ margin: 20 }}>
-          <PostTitle form={form} onChange={setForm} />
+          <View style={{ marginBottom: 10 }} >
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', marginBottom: 10 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+                Tree Name
+              </Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 14 }}> (Required)</Text>
+            </View>
+            <TextInput
+              placeholder="Name of tree"
+              value={form.title}
+              onChangeText={text => setForm({ ...form, title: text })}
+              style={{ backgroundColor: 'white', padding: 10, borderWidth: 1, fontSize: 14, borderColor: 'lightgray' }}
+            />
+          </View>
+          <DataSearch form={form} onChange={setForm} />
           <PhotoPicker form={form} onChange={setForm} />
           <LocationPicker form={form} onChange={setForm} />
           <Notes form={form} onChange={setForm} />
         </View>
       )}
     </KeyboardAwareScrollView>
-    // <KeyboardAvoidingView
-    //   style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
-    //   behavior={Platform.OS === 'ios' ? 'position' : null}
-    //   enabled
-    //   keyboardVerticalOffset={100}
-    // >
-    //   <ScrollView>
-
-    //   </ScrollView>
-    // </KeyboardAvoidingView>
   )
 }
 

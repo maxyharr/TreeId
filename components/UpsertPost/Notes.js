@@ -11,7 +11,7 @@ const Notes = ({ form, onChange }) => {
         placeholder="Notes"
         multiline={true}
         style={{
-          fontSize: 20,
+          fontSize: 14,
           marginBottom: 10,
           backgroundColor: 'white',
           padding: 10,

@@ -34,7 +34,6 @@ const LocationPicker = ({ form, onChange }) => {
   const handleLocationChange = (e) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
     const geoHash = geoFire.geohashForLocation([latitude, longitude]);
-    console.log('LocationPicker#handleLocationChange', latitude, longitude, geoHash);
     onChange({ ...form, location: {latitude, longitude, geoHash }});
   }
 
@@ -44,7 +43,7 @@ const LocationPicker = ({ form, onChange }) => {
       { form.location && form.location.latitude && (
         // Touching a point on the map should move the marker to that point
         <MapView
-          style={{ flex: 1 }}
+          style={{ flex: 1, borderWidth: 1, borderColor: 'lightgray' }}
           onPress={handleLocationChange}
           showsUserLocation
           initialRegion={{

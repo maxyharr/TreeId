@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../api';
 import { ScrollView } from 'react-native-gesture-handler';
 import AssetCarousel from './AssetCarousel';
+import TrefleDetails from './TrefleDetails';
 
 const TreeDetailsScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -58,6 +59,9 @@ const TreeDetailsScreen = ({ route }) => {
   return (
     <ScrollView style={{ flex: 1 }}>
       <Text style={{ fontSize: 24, margin: 10, fontWeight: 'bold' }}>{post?.title || 'Loading...'}</Text>
+      <View style={{ flex: 1, margin: 10 }}>
+        <TrefleDetails treflePlant={post?.treflePlant} />
+      </View>
       <AssetCarousel assets={post?.mediaAssets} />
       <View>
         <Text style={{ fontSize: 18, margin: 10, fontWeight: 'bold' }}>Notes</Text>

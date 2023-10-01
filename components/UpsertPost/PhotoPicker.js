@@ -85,8 +85,8 @@ const PhotoPicker = ({ form, onChange }) => {
                 <Video style={{ width: IMAGE_WIDTH, height: IMAGE_HEIGHT, borderRadius: 10, borderWidth: 1 }} source={{ uri: item.uri }} />
               )}
               <TouchableOpacity style={{ position: 'absolute', right: -6, top: -6 }} onPress={() => deleteAsset(item)} activeOpacity={1}>
-                <View style={{backgroundColor: 'lightgray', borderWidth: 3, borderColor: 'lightgray', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, borderRadius: 50}}>
-                  <FontAwesome name="times" size={15} style={{ color: 'gray' }}/>
+                <View style={{backgroundColor: 'lightgray', borderWidth: 1, borderColor: 'white', justifyContent: 'center', alignItems: 'center', width: 25, height: 25, borderRadius: 50}}>
+                  <FontAwesome name="times" size={12} style={{ color: 'gray' }}/>
                 </View>
               </TouchableOpacity>
             </View>

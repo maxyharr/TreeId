@@ -48,7 +48,6 @@ const MapScreen = () => {
     if (!result.error) {
       const posts = result.data;
       const newMarkers = posts.map((post) => {
-        console.log('MapScreen#handleRegionChange post:', post)
         const { uri, downloadUrl } = post.mediaAssets[0];
         return {
           id: post.id,
